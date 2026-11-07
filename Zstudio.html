@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<!-- saved from url=(0030)https://zstudio11.netlify.app/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=61009a1f-ec20-4e4a-9bc8-569f57018c63
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zstudio - offical Z# IDE from ZcodexZ</title>
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./Zstudio_files/css2" rel="stylesheet">
+    <link rel="stylesheet" href="./Zstudio_files/all.min.css">
+
+    <style>
+        /* CSS Variables & Core Reset */
+        :root {
+            --bg-dark: #0a0a0d;
+            --sidebar-bg: #121218;
+            --editor-bg: #16161e;
+            --panel-bg: #1a1a24;
+            --border-color: #262636;
+            --brand-primary: #e11d48;
+            --brand-hover: #be123c;
+            --brand-accent: #ff2a5f;
+            --amber-accent: #fbbf24;
+            --amber-hover: #d97706;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-subtle: #64748b;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', 'Consolas', 'Monaco', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, select, input {
+            font-family: inherit;
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--brand-primary);
+        }
+
+        /* Syntax Highlighting */
+        .token-kw { color: #f43f5e; font-weight: 600; }
+        .token-fn { color: #38bdf8; font-weight: 500; }
+        .token-class { color: #facc15; font-weight: 600; }
+        .token-str { color: #4ade80; }
+        .token-num { color: #fb923c; }
+        .token-op { color: #ff2a5f; font-weight: 700; }
+        .token-comment { color: #64748b; font-style: italic; }
+        .token-builtin { color: #c084fc; font-weight: 600; }
+        .token-self { color: #f472b6; font-weight: 600; }
+
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .font-mono { font-family: var(--font-mono); }
+
+        /* Header Styles */
+        header {
+            height: 3.5rem;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            z-index: 30;
+            flex-shrink: 0;
+        }
+
+        .logo-box {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            background: linear-gradient(to bottom right, var(--brand-primary), #9f1239);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #fff;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 6px -1px rgba(136, 19, 55, 0.5);
+        }
+
+        .version-badge {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--brand-accent);
+            background-color: rgba(136, 19, 55, 0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(225, 29, 72, 0.3);
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 0.25rem 0.625rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background-color: var(--panel-bg); }
+        .nav-btn.amber { color: var(--amber-accent); font-weight: 500; }
+        .nav-btn.brand { color: var(--brand-accent); font-weight: 600; }
+
+        .btn-primary {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: 0.5rem;
+            background-color: var(--brand-primary);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(159, 18, 57, 0.3);
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background-color: var(--brand-hover); }
+
+        .device-selector-box {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            background-color: var(--panel-bg);
+            padding: 0.25rem 0.625rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            font-size: 0.75rem;
+        }
+        .device-selector-box select {
+            background: transparent;
+            color: #e2e8f0;
+            border: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .icon-btn {
+            padding: 0.375rem;
+            border-radius: 0.5rem;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: #cbd5e1;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .icon-btn:hover { background-color: var(--border-color); }
+
+        .stylus-meter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--panel-bg);
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Workspace Layout */
+        .workspace-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar Styles */
+        aside#sidebar {
+            width: 16rem;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-dark);
+        }
+        .sidebar-tab-btn {
+            flex: 1;
+            padding: 0.625rem 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        .sidebar-tab-btn.active {
+            border-bottom-color: var(--brand-primary);
+            color: var(--brand-accent);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.375rem 0.625rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            cursor: pointer;
+            color: #cbd5e1;
+            transition: background 0.2s;
+            margin-bottom: 2px;
+        }
+        .file-item:hover { background-color: var(--panel-bg); }
+        .file-item.active {
+            background-color: rgba(136, 19, 55, 0.4);
+            color: var(--brand-accent);
+            border: 1px solid rgba(225, 29, 72, 0.3);
+            font-weight: 600;
+        }
+
+        .card-panel {
+            padding: 0.625rem;
+            border-radius: 0.5rem;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: border-color 0.2s;
+            margin-bottom: 0.5rem;
+        }
+        .card-panel:hover { border-color: rgba(251, 191, 36, 0.5); }
+        .card-panel.snippet:hover { border-color: rgba(225, 29, 72, 0.5); }
+
+        /* Code Editor */
+        main.editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--editor-bg);
+            min-width: 0;
+        }
+
+        .editor-tabs-header {
+            height: 2.25rem;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            flex-shrink: 0;
+            padding: 0 0.5rem;
+            gap: 0.25rem;
+        }
+
+        .editor-tab {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background-color: var(--panel-bg);
+            color: var(--text-muted);
+        }
+        .editor-tab.active {
+            background-color: var(--editor-bg);
+            border-color: var(--border-color);
+            border-bottom-color: transparent;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .line-numbers {
+            user-select: none;
+            color: #475569;
+            padding: 1rem 0.75rem;
+            text-align: right;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            min-width: 45px;
+        }
+
+        .editor-container {
+            position: relative;
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        pre#highlightingArea, textarea#codeEditor {
+            position: absolute;
+            inset: 0;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            line-height: 1.625;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0;
+            border: none;
+            outline: none;
+        }
+
+        pre#highlightingArea {
+            overflow: auto;
+            pointer-events: none;
+        }
+
+        textarea#codeEditor {
+            background: transparent;
+            color: transparent;
+            caret-color: var(--brand-accent);
+            resize: none;
+            z-index: 10;
+            font-weight: 500;
+        }
+
+        .status-bar {
+            height: 1.5rem;
+            background-color: var(--sidebar-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 0 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            user-select: none;
+        }
+
+        /* Right Tablet Simulator Panel */
+        section#previewPanel {
+            width: 50%;
+            background-color: var(--bg-dark);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .preview-header {
+            height: 2.25rem;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .tablet-frame-wrapper {
+            flex: 1;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            background-image: radial-gradient(#1f1f2e 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+
+        .tablet-frame {
+            position: relative;
+            background-color: #0f172a;
+            border: 12px solid #1e293b;
+            border-radius: 36px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(225, 29, 72, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: 420px;
+            height: 560px;
+            max-width: 100%;
+            max-height: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tablet-notch {
+            height: 1.25rem;
+            background-color: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .camera-lens {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background-color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .camera-inner {
+            width: 0.375rem;
+            height: 0.375rem;
+            border-radius: 50%;
+            background-color: #0f172a;
+        }
+
+        .tablet-screen {
+            flex: 1;
+            background-color: #020617;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tablet-home-bar {
+            height: 1rem;
+            background-color: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .home-indicator {
+            width: 7rem;
+            height: 0.25rem;
+            border-radius: 9999px;
+            background-color: #334155;
+        }
+
+        /* Bottom Console Panel */
+        footer#bottomPanel {
+            height: 12rem;
+            background-color: var(--sidebar-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .bottom-header {
+            height: 2rem;
+            background-color: var(--bg-dark);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .bottom-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.375rem 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        .bottom-tab-btn.active {
+            color: var(--brand-accent);
+            border-bottom: 2px solid var(--brand-primary);
+        }
+
+        .bottom-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            padding: 0.75rem;
+        }
+
+        /* Modals & Glass Panel */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 24, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.125rem;
+            cursor: pointer;
+        }
+        .modal-close:hover { color: #fff; }
+
+        /* Inputs & Form Elements */
+        .form-input-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+        .form-input-box input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 0.75rem;
+            outline: none;
+            font-family: var(--font-mono);
+        }
+
+        .form-select {
+            width: 100%;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: #e2e8f0;
+            font-size: 0.75rem;
+            border-radius: 0.75rem;
+            padding: 0.625rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Toast Banner */
+        #toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+            background-color: var(--brand-primary);
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transform: translateY(5rem);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Header Navigation Bar -->
+    <header>
+        <!-- Left: Logo & Menus -->
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2" style="cursor: pointer;" onclick="showToast('Zstudio v1.4.2 Active - Z# Core Runtime Loaded')">
+                <div class="logo-box">Z#</div>
+                <span style="font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.375rem;">
+                    Zstudio <span class="version-badge">v1.4</span>
+                </span>
+            </div>
+
+            <!-- Menu Bar Options -->
+            <nav class="flex items-center gap-1" style="font-size: 0.75rem;">
+                <button onclick="openNewFileModal()" class="nav-btn">
+                    <i class="fa-solid fa-plus" style="font-size: 10px; color: var(--brand-accent);"></i> New File
+                </button>
+                <button onclick="openTutorialModal()" class="nav-btn amber">
+                    <i class="fa-solid fa-graduation-cap"></i> Z# Tutorial
+                </button>
+                <button onclick="runZsharpCode()" class="nav-btn brand">Run Code</button>
+                <button onclick="togglePanel('bottomPanel')" class="nav-btn">View Console</button>
+                <button onclick="openZcodexZInfo()" class="nav-btn" style="color: var(--text-subtle);">About ZcodexZ</button>
+            </nav>
+        </div>
+
+        <!-- Center: Quick Run Controls & Device Selector -->
+        <div class="flex items-center gap-3">
+            <button id="runBtn" onclick="runZsharpCode()" class="btn-primary">
+                <i class="fa-solid fa-play" style="font-size: 10px;"></i>
+                <span>Hot Reload</span>
+            </button>
+
+            <!-- Tablet Target Selector -->
+            <div class="device-selector-box">
+                <i class="fa-solid fa-tablet-screen-button" style="color: var(--brand-accent);"></i>
+                <select id="deviceSelector" onchange="changeSimulatedDevice(this.value)">
+                    <option value="ipad-pro-12">iPad Pro 12.9" (1024x1366)</option>
+                    <option value="ipad-mini">iPad mini (744x1133)</option>
+                    <option value="galaxy-tab">Galaxy Tab S9 (800x1280)</option>
+                    <option value="surface-pro">Surface Pro 9 (960x1440)</option>
+                </select>
+            </div>
+
+            <button onclick="toggleOrientation()" title="Toggle Portrait / Landscape" class="icon-btn">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
+        </div>
+
+        <!-- Right: Stylus Status & Action Buttons -->
+        <div class="flex items-center gap-3" style="font-size: 0.75rem;">
+            <div class="stylus-meter">
+                <i class="fa-solid fa-pen-nib" style="color: var(--brand-accent);"></i>
+                <span style="color: var(--text-subtle);">Stylus Force:</span>
+                <span id="pressureValueText" class="font-mono" style="color: var(--brand-accent); font-weight: 600;">75%</span>
+                <input id="pressureSlider" type="range" min="10" max="100" value="75" oninput="updateStylusPressure(this.value)" style="width: 4rem; accent-color: var(--brand-primary); cursor: pointer;">
+            </div>
+
+            <button onclick="openTutorialModal()" class="nav-btn amber" style="border: 1px solid rgba(251, 191, 36, 0.3); padding: 0.25rem 0.625rem; border-radius: 0.5rem;">
+                <i class="fa-solid fa-book-open"></i>
+                <span>Learn Z#</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <div class="workspace-container">
+
+        <!-- Left Explorer / Tools Sidebar -->
+        <aside id="sidebar">
+            <div class="sidebar-tabs">
+                <button onclick="switchSidebarTab('files')" id="tabBtnFiles" class="sidebar-tab-btn active">
+                    <i class="fa-regular fa-folder-open"></i> Explorer
+                </button>
+                <button onclick="switchSidebarTab('tutorial')" id="tabBtnTutorial" class="sidebar-tab-btn">
+                    <i class="fa-solid fa-graduation-cap" style="color: var(--amber-accent);"></i> Tutorial
+                </button>
+                <button onclick="switchSidebarTab('snippets')" id="tabBtnSnippets" class="sidebar-tab-btn">
+                    <i class="fa-solid fa-code"></i> Snippets
+                </button>
+            </div>
+
+            <!-- Tab Content 1: Files Explorer -->
+            <div id="tabContentFiles" class="sidebar-content">
+                <div class="flex items-center justify-between" style="padding: 0.25rem 0.5rem; font-size: 11px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">
+                    <span>Project Files (.zsh)</span>
+                    <button onclick="openNewFileModal()" title="New File" style="background:none; border:none; color: var(--brand-accent); cursor:pointer;"><i class="fa-solid fa-plus"></i></button>
+                </div>
+
+                <div id="fileList" style="margin-top: 0.25rem;"><div class="file-item active">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-file-code" style="font-size: 11px;"></i>
+                        <span>main.zsh</span>
+                    </div>
+                    <span style="font-size: 10px; color: var(--text-subtle);">.zsh</span>
+                </div><div class="file-item ">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-file-code" style="font-size: 11px;"></i>
+                        <span>dashboard.zsh</span>
+                    </div>
+                    <span style="font-size: 10px; color: var(--text-subtle);">.zsh</span>
+                </div><div class="file-item ">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-file-code" style="font-size: 11px;"></i>
+                        <span>gestures.zsh</span>
+                    </div>
+                    <span style="font-size: 10px; color: var(--text-subtle);">.zsh</span>
+                </div></div>
+
+                <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); padding-left: 0.5rem; padding-right: 0.5rem;">
+                    <button onclick="openNewFileModal()" class="icon-btn" style="width: 100%; padding: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-file-circle-plus" style="color: var(--brand-accent);"></i> Create New File
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content 2: Z# Tutorial Panel -->
+            <div id="tabContentTutorial" class="sidebar-content hidden" style="font-size: 0.75rem;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--amber-accent); text-transform: uppercase; margin-bottom: 0.5rem;">
+                    <i class="fa-solid fa-graduation-cap"></i> Interactive Lessons
+                </div>
+                
+                <div class="card-panel" onclick="loadTutorialLesson(1)">
+                    <div class="flex items-center justify-between" style="font-weight: 600; color: #f1f5f9;">
+                        <span>1. Basic Variables &amp; Functions</span>
+                        <span class="version-badge" style="color: #fde68a; background: rgba(180, 83, 9, 0.4); border-color: rgba(245, 158, 11, 0.3);">Beginner</span>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-subtle); margin-top: 0.25rem;">Learn `fn`, parameters, and basic state initialization.</p>
+                </div>
+
+                <div class="card-panel" onclick="loadTutorialLesson(2)">
+                    <div class="flex items-center justify-between" style="font-weight: 600; color: #f1f5f9;">
+                        <span>2. Object-Oriented Classes</span>
+                        <span class="version-badge" style="color: #fde68a; background: rgba(180, 83, 9, 0.4); border-color: rgba(245, 158, 11, 0.3);">OOP</span>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-subtle); margin-top: 0.25rem;">Class structures, methods, and `self` references in Z#.</p>
+                </div>
+
+                <div class="card-panel" onclick="loadTutorialLesson(3)">
+                    <div class="flex items-center justify-between" style="font-weight: 600; color: #f1f5f9;">
+                        <span>3. Stylus Pipeline (|&gt;)</span>
+                        <span class="version-badge">Core</span>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-subtle); margin-top: 0.25rem;">Transform touch and pressure streams with operators.</p>
+                </div>
+
+                <div class="card-panel" onclick="loadTutorialLesson(4)">
+                    <div class="flex items-center justify-between" style="font-weight: 600; color: #f1f5f9;">
+                        <span>4. SplitView Layout Primitives</span>
+                        <span class="version-badge" style="color: #7dd3fc; background: rgba(12, 74, 110, 0.4); border-color: rgba(14, 165, 233, 0.3);">UI</span>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-subtle); margin-top: 0.25rem;">Construct side-by-side split tablet user interfaces.</p>
+                </div>
+
+                <button onclick="openTutorialModal()" class="btn-primary" style="width: 100%; margin-top: 0.5rem; background-color: #d97706; justify-content: center;">
+                    <i class="fa-solid fa-book"></i> Open Full Tutorial Docs
+                </button>
+            </div>
+
+            <!-- Tab Content 3: Code Snippets -->
+            <div id="tabContentSnippets" class="sidebar-content hidden" style="font-size: 0.75rem;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; margin-bottom: 0.5rem;">Quick Z# Code Snippets</div>
+                <div class="card-panel snippet" onclick="insertSnippet('pipeline')">
+                    <div style="font-weight: 600; color: var(--brand-accent);">Stylus Pipeline (|&gt;)</div>
+                    <p style="font-size: 11px; color: var(--text-subtle);">Stream pressure &amp; curve smoothing</p>
+                </div>
+                <div class="card-panel snippet" onclick="insertSnippet('splitview')">
+                    <div style="font-weight: 600; color: #e2e8f0;">SplitView Layout</div>
+                    <p style="font-size: 11px; color: var(--text-subtle);">Tablet multi-pane component structure</p>
+                </div>
+                <div class="card-panel snippet" onclick="insertSnippet('class')">
+                    <div style="font-weight: 600; color: #e2e8f0;">Z# UI Class</div>
+                    <p style="font-size: 11px; color: var(--text-subtle);">Class declaration with init &amp; render</p>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer Status -->
+            <div style="padding: 0.75rem; border-top: 1px solid var(--border-color); background-color: var(--bg-dark); font-size: 11px; color: var(--text-subtle);" class="flex items-center justify-between">
+                <span class="flex items-center gap-1">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #10b981; display: inline-block;"></span>
+                    Compiler: Ready
+                </span>
+                <span class="font-mono" style="color: var(--brand-accent);">Z# v0.1</span>
+            </div>
+        </aside>
+
+        <!-- Center Panel: Interactive Code Editor -->
+        <main class="editor-area">
+            <div id="editorTabs" class="editor-tabs-header"><div class="editor-tab active">
+                    <i class="fa-solid fa-file-code" style="color: var(--brand-accent); font-size: 10px;"></i>
+                    <span>main.zsh</span>
+                    <i onclick="event.stopPropagation(); deleteFile('main.zsh')" class="fa-solid fa-xmark" style="font-size: 10px; margin-left: 4px;"></i>
+                </div><div class="editor-tab ">
+                    <i class="fa-solid fa-file-code" style="color: var(--brand-accent); font-size: 10px;"></i>
+                    <span>dashboard.zsh</span>
+                    <i onclick="event.stopPropagation(); deleteFile('dashboard.zsh')" class="fa-solid fa-xmark" style="font-size: 10px; margin-left: 4px;"></i>
+                </div><div class="editor-tab ">
+                    <i class="fa-solid fa-file-code" style="color: var(--brand-accent); font-size: 10px;"></i>
+                    <span>gestures.zsh</span>
+                    <i onclick="event.stopPropagation(); deleteFile('gestures.zsh')" class="fa-solid fa-xmark" style="font-size: 10px; margin-left: 4px;"></i>
+                </div></div>
+
+            <div class="editor-wrapper">
+                <div id="lineNumbers" class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29</div>
+
+                <div class="editor-container">
+                    <pre id="highlightingArea"><code id="highlightCode"><span class="token-kw">class</span> TabletCanvasApp {
+    <span class="token-kw">fn</span> <span class="token-fn">init</span>(initialBrushSize = <span class="token-num">5.0</span>) {
+        <span class="token-self">self</span>.brushSize = initialBrushSize
+        <span class="token-self">self</span>.activeColor = <span class="token-str">"#e11d48"</span>
+    }
+
+    <span class="token-comment"># Native Tablet SplitView Layout Primitive</span>
+    <span class="token-kw">fn</span> <span class="token-fn">render</span>() {
+        <span class="token-kw">return</span> <span class="token-builtin">SplitView</span>(
+            sidebar: <span class="token-builtin">ToolPanel</span>(
+                brushSize: <span class="token-self">self</span>.brushSize,
+                color: <span class="token-self">self</span>.activeColor
+            ),
+            main: <span class="token-builtin">DrawingCanvas</span>(
+                palmRejection: <span class="token-builtin">true</span>,
+                strokeColor: <span class="token-self">self</span>.activeColor,
+                onStylusDraw: (stroke) =&gt; <span class="token-self">self</span>.<span class="token-fn">processStroke</span>(stroke)
+            )
+        )
+    }
+
+    <span class="token-comment"># Functional Pipeline Operator (|&gt;) for Pressure Stream Smoothing</span>
+    <span class="token-kw">fn</span> <span class="token-fn">processStroke</span>(stroke) {
+        <span class="token-kw">return</span> stroke
+            |&gt; filterPalmInputs
+            |&gt; <span class="token-fn">scalePressure</span>(multiplier: <span class="token-num">1.8</span>)
+            |&gt; smoothBezierCurves
+    }
+}</code></pre>
+                    <textarea id="codeEditor" spellcheck="false" oninput="handleCodeInput()" onkeydown="handleKeyDown(event)" onscroll="syncScroll()"></textarea>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="flex items-center gap-4">
+                    <span id="cursorPosText">Ln 29, Col 2</span>
+                    <span id="activeLanguageText">Z# (Z-Sharp Script)</span>
+                    <span style="color: #34d399;"><i class="fa-solid fa-check" style="font-size: 10px;"></i> Syntax Engine OK</span>
+                </div>
+                <div class="flex items-center gap-3 font-mono">
+                    <span>UTF-8</span>
+                    <span>Tab Size: 4</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Panel: Tablet Simulator & Device Viewport -->
+        <section id="previewPanel">
+            <div class="preview-header">
+                <div class="flex items-center gap-2" style="font-size: 0.75rem; font-weight: 500; color: #cbd5e1;">
+                    <i class="fa-solid fa-tablet-screen-button" style="color: var(--brand-accent);"></i>
+                    <span>Live Tablet Preview</span>
+                    <span id="resolutionBadge" class="version-badge" style="color: var(--text-muted); background: var(--panel-bg); border-color: var(--border-color);">1024 x 1366</span>
+                </div>
+
+                <div class="flex items-center gap-2" style="font-size: 0.75rem;">
+                    <button onclick="resetCanvasDrawing()" title="Clear Canvas Drawing" class="icon-btn flex items-center gap-1">
+                        <i class="fa-solid fa-eraser"></i> Clear
+                    </button>
+                    <button onclick="togglePalmRejection()" id="palmBtn" class="version-badge" style="cursor: pointer; padding: 4px 8px; font-size: 11px;">
+                        <i class="fa-solid fa-hand"></i> Palm Filter: ON
+                    </button>
+                    <button onclick="toggleFullscreenSimulator()" class="icon-btn" style="background: transparent; border: none;"><i class="fa-solid fa-expand"></i></button>
+                </div>
+            </div>
+
+            <!-- Tablet Device Container Shell -->
+            <div id="tabletViewportContainer" class="tablet-frame-wrapper">
+                <div id="tabletDeviceFrame" class="tablet-frame">
+                    <div class="tablet-notch">
+                        <div class="camera-lens"><div class="camera-inner"></div></div>
+                    </div>
+
+                    <div id="simulatedAppScreen" class="tablet-screen">
+                        <div id="zsharpAppUI" style="flex: 1; display: flex; overflow: hidden;">
+                    <div style="width: 33.33%; background: #0f172a; border-right: 1px solid #1e293b; padding: 0.75rem; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; user-select: none;">
+                        <div>
+                            <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem;">Tool Panel</div>
+                            <div class="flex flex-col gap-3">
+                                <div>
+                                    <label style="font-size: 11px; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.25rem;">Brush Color</label>
+                                    <div class="flex gap-2">
+                                        <button onclick="setSimColor('#e11d48')" style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #e11d48; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;"></button>
+                                        <button onclick="setSimColor('#38bdf8')" style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #38bdf8; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;"></button>
+                                        <button onclick="setSimColor('#4ade80')" style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #4ade80; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;"></button>
+                                        <button onclick="setSimColor('#facc15')" style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #facc15; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;"></button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style="font-size: 11px; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.25rem;">Brush Size: <span id="simSizeVal">5px</span></label>
+                                    <input type="range" min="1" max="25" value="5" oninput="setSimSize(this.value)" style="width: 100%; height: 4px; background: #1e293b; border-radius: 2px; accent-color: var(--brand-primary);">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding: 0.5rem; border-radius: 0.375rem; background: #020617; border: 1px solid #1e293b; font-size: 10px; color: #94a3b8;" class="font-mono">
+                            <i class="fa-solid fa-pen-nib" style="color: var(--brand-accent);"></i> Stylus Stream Active
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; background: #020617; position: relative; overflow: hidden;" class="flex flex-col">
+                        <div style="padding: 0.5rem; background: #0f172a; border-bottom: 1px solid #1e293b; font-size: 11px; color: #cbd5e1; user-select: none;" class="flex justify-between items-center">
+                            <span style="font-weight: 700;" class="flex items-center gap-1"><i class="fa-solid fa-paintbrush" style="color: var(--brand-accent);"></i> Canvas</span>
+                            <span style="font-size: 10px; color: #34d399;" class="font-mono"><i class="fa-solid fa-shield-halved"></i> Palm Filter</span>
+                        </div>
+                        <canvas id="appCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair;" width="264" height="340"></canvas>
+                    </div>
+                </div>
+                    </div>
+
+                    <div class="tablet-home-bar">
+                        <div class="home-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Bottom Panel: Console & Stylus Output -->
+    <footer id="bottomPanel" class="hidden">
+        <div class="bottom-header">
+            <div class="flex items-center gap-4">
+                <button onclick="switchBottomTab('console')" id="btnTabConsole" class="bottom-tab-btn active">
+                    <i class="fa-solid fa-terminal" style="font-size: 11px;"></i> Console
+                </button>
+                <button onclick="switchBottomTab('stylus')" id="btnTabStylus" class="bottom-tab-btn">
+                    <i class="fa-solid fa-chart-line" style="font-size: 11px;"></i> Stylus Stream (|&gt;)
+                </button>
+                <button onclick="switchBottomTab('ast')" id="btnTabAst" class="bottom-tab-btn">
+                    <i class="fa-solid fa-sitemap" style="font-size: 11px;"></i> Z# AST Inspector
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="clearConsoleLog()" class="icon-btn" style="background: transparent; border: none; font-size: 11px;">
+                    <i class="fa-solid fa-ban"></i> Clear
+                </button>
+                <button onclick="togglePanel('bottomPanel')" class="icon-btn" style="background: transparent; border: none;"><i class="fa-solid fa-chevron-down"></i></button>
+            </div>
+        </div>
+
+        <div class="bottom-content">
+            <div id="viewConsole" class="font-mono" style="height: 100%; overflow-y: auto; font-size: 0.75rem; color: #cbd5e1;">
+                <div style="color: var(--text-subtle);">[Z# Compiler Engine v0.1 initialized]</div>
+                <div style="color: #34d399;">[Hot Reload] Tablet Canvas App compiled with 0 errors.</div>
+            <div>[9:00:20 AM] [Hot Reload] Executing main.zsh...</div></div>
+
+            <div id="viewStylus" class="hidden flex-col" style="height: 100%;">
+                <div class="flex items-center justify-between" style="font-size: 11px; color: var(--text-subtle); margin-bottom: 0.25rem;">
+                    <span>Realtime Stylus Pressure Input Pipeline (<code class="font-mono" style="color: var(--brand-accent);">|&gt;</code>)</span>
+                    <span id="pressurePointCounter" class="font-mono">Points Processed: 0</span>
+                </div>
+                <div style="flex: 1; background-color: var(--panel-bg); border-radius: 0.5rem; border: 1px solid var(--border-color); position: relative; overflow: hidden;">
+                    <canvas id="pressureCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
+                </div>
+            </div>
+
+            <div id="viewAst" class="hidden font-mono" style="height: 100%; overflow-y: auto; font-size: 0.75rem; color: #d8b4fe; background-color: var(--bg-dark); padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color);">
+                <pre id="astOutput">Program {<br>  source: "main.zsh",<br>  AST: {<br>    Class: "main",<br>    PipelineOperators: true,<br>    TabletPrimitives: ["SplitView", "DrawingCanvas"]<br>  }<br>}</pre>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal: New File Creation -->
+    <div id="newFileModal" class="modal-overlay hidden">
+        <div class="glass-panel" style="max-width: 28rem; padding: 1.5rem;">
+            <button onclick="closeModal('newFileModal')" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+
+            <div class="flex items-center gap-3" style="margin-bottom: 1rem;">
+                <div class="logo-box" style="width: 2.5rem; height: 2.5rem; font-size: 1.125rem;"><i class="fa-solid fa-file-circle-plus"></i></div>
+                <div>
+                    <h3 style="font-size: 1rem; font-weight: 700; color: #fff;">Create New Z# File</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-subtle);">Choose a filename and optional template</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 600; color: #cbd5e1; text-transform: uppercase; margin-bottom: 0.375rem;">File Name</label>
+                    <div class="form-input-box">
+                        <i class="fa-solid fa-file-code" style="color: var(--brand-accent); font-size: 0.75rem; margin-right: 0.5rem;"></i>
+                        <input id="newFileNameInput" type="text" placeholder="e.g. NavigationPanel">
+                        <span class="font-mono" style="font-size: 0.75rem; color: var(--text-subtle);">.zsh</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 600; color: #cbd5e1; text-transform: uppercase; margin-bottom: 0.375rem;">Boilerplate Template</label>
+                    <select id="newFileTemplateSelect" class="form-select">
+                        <option value="blank">Blank Class File</option>
+                        <option value="splitview">SplitView UI Layout Component</option>
+                        <option value="pipeline">Stylus Pressure Stream Pipeline</option>
+                        <option value="gesture">Multi-Touch Gesture Listener</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2" style="padding-top: 0.5rem;">
+                    <button onclick="closeModal('newFileModal')" class="icon-btn" style="flex: 1; padding: 0.625rem; font-weight: 600;">Cancel</button>
+                    <button onclick="confirmCreateNewFile()" class="btn-primary" style="flex: 1; padding: 0.625rem; justify-content: center;">Create File</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Z# Language Tutorial -->
+    <div id="tutorialModal" class="modal-overlay hidden">
+        <div class="glass-panel flex flex-col" style="max-width: 42rem; max-height: 85vh; overflow: hidden;">
+            <div class="flex items-center justify-between" style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); background-color: var(--sidebar-bg);">
+                <div class="flex items-center gap-3">
+                    <div class="logo-box" style="width: 2.5rem; height: 2.5rem; background: linear-gradient(to bottom right, #f59e0b, #b45309);"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div>
+                        <h3 style="font-size: 1rem; font-weight: 700; color: #fff;">Z# Interactive Tutorial &amp; Guide</h3>
+                        <p style="font-size: 0.75rem; color: var(--amber-accent); font-weight: 500;">Master the Tablet-First Programming Language</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('tutorialModal')" class="modal-close" style="position: static;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div style="flex: 1; overflow-y: auto; padding: 1.5rem; font-size: 0.75rem; line-height: 1.625; color: #cbd5e1;" class="flex flex-col gap-4">
+                <div>
+                    <h4 style="font-size: 0.875rem; font-weight: 700; color: var(--amber-accent); margin-bottom: 0.25rem;"><i class="fa-solid fa-book-open"></i> 1. What is Z#?</h4>
+                    <p>Z# is a language designed specifically for tablets with built-in primitives for stylus streams, palm rejection, and SplitView layouts.</p>
+                </div>
+                <div>
+                    <h4 style="font-size: 0.875rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem;"><i class="fa-solid fa-code"></i> 2. Functions (`fn`)</h4>
+                    <pre style="background: var(--bg-dark); padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color);" class="font-mono"><code class="token-kw">fn</code> <span class="token-fn">calculateBrush</span>(force) { <span class="token-kw">return</span> force * <span class="token-num">1.5</span> }</pre>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between" style="padding: 1rem; border-top: 1px solid var(--border-color); background-color: var(--sidebar-bg);">
+                <span style="font-size: 11px; color: var(--text-subtle);">Click any lesson in the sidebar to load example code directly.</span>
+                <button onclick="closeModal('tutorialModal')" class="btn-primary">Start Coding</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: About ZcodexZ -->
+    <div id="zcodexzModal" class="modal-overlay hidden">
+        <div class="glass-panel" style="max-width: 28rem; padding: 1.5rem;">
+            <button onclick="closeModal('zcodexzModal')" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+
+            <div class="flex items-center gap-3" style="margin-bottom: 1rem;">
+                <div class="logo-box" style="width: 3rem; height: 3rem; font-size: 1.25rem;">Z#</div>
+                <div>
+                    <h3 style="font-size: 1.125rem; font-weight: 700; color: #fff;">Zstudio IDE</h3>
+                    <p style="font-size: 0.75rem; color: var(--brand-accent); font-weight: 600;">Engineered by ZcodexZ</p>
+                </div>
+            </div>
+
+            <p style="font-size: 0.75rem; color: #cbd5e1; line-height: 1.625; margin-bottom: 1rem;">
+                Zstudio is the dedicated tablet-first IDE designed for writing, testing, and debugging software written in <strong>Z#</strong>. Developed by Ahmed at <strong>ZcodexZ</strong>.
+            </p>
+
+            <div style="padding: 0.75rem; border-radius: 0.75rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); font-size: 0.75rem; margin-bottom: 1rem;" class="flex flex-col gap-1">
+                <div class="flex justify-between"><span style="color: var(--text-subtle);">Founder &amp; Architect:</span> <span style="font-weight: 600; color: #fff;">Ahmed</span></div>
+                <div class="flex justify-between"><span style="color: var(--text-subtle);">Contact Email:</span> <span class="font-mono" style="color: var(--brand-accent);">ahmedhossam4112013@gmail.com</span></div>
+                <div class="flex justify-between"><span style="color: var(--text-subtle);">Compiler Version:</span> <span class="font-mono" style="color: #34d399;">v0.1.0-alpha</span></div>
+            </div>
+
+            <button onclick="closeModal('zcodexzModal')" class="btn-primary" style="width: 100%; justify-content: center;">Close Inspector</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="">
+        <i class="fa-solid fa-circle-check" style="font-size: 1rem;"></i>
+        <span id="toastMsg">Hot Reload Complete</span>
+    </div>
+
+    <script>
+        // Z# Preloaded Files
+        const defaultFiles = {
+            "main.zsh": `class TabletCanvasApp {
+    fn init(initialBrushSize = 5.0) {
+        self.brushSize = initialBrushSize
+        self.activeColor = "#e11d48"
+    }
+
+    # Native Tablet SplitView Layout Primitive
+    fn render() {
+        return SplitView(
+            sidebar: ToolPanel(
+                brushSize: self.brushSize,
+                color: self.activeColor
+            ),
+            main: DrawingCanvas(
+                palmRejection: true,
+                strokeColor: self.activeColor,
+                onStylusDraw: (stroke) => self.processStroke(stroke)
+            )
+        )
+    }
+
+    # Functional Pipeline Operator (|>) for Pressure Stream Smoothing
+    fn processStroke(stroke) {
+        return stroke
+            |> filterPalmInputs
+            |> scalePressure(multiplier: 1.8)
+            |> smoothBezierCurves
+    }
+}`,
+            "dashboard.zsh": `class SplitDashboard {
+    fn init() {
+        self.title = "Tablet Analytics"
+    }
+
+    fn render() {
+        return SplitView(
+            sidebar: MetricCard(title: "Active Touches", value: "3 Points"),
+            main: MetricCard(title: "Pressure Stream", value: "98.4 FPS")
+        )
+    }
+}`,
+            "gestures.zsh": `class GestureListener {
+    fn init() {
+        self.enablePinchZoom = true
+        self.enablePencilTilt = true
+    }
+
+    fn onPinch(scale) {
+        print("Pinch detected with scale: " + scale)
+    }
+}`
+        };
+
+        // Application State
+        let files = { ...defaultFiles };
+        let activeFile = "main.zsh";
+        let activeSidebarTab = "files";
+        let activeBottomTab = "console";
+        let palmRejectionEnabled = true;
+        let currentPressure = 75;
+        let isLandscape = false;
+        let strokePointsCount = 0;
+        let pressureHistory = [];
+
+        // Dynamic UI Drawing State
+        let canvasDrawingColor = "#e11d48";
+        let canvasBrushSize = 5;
+
+        window.onload = function() {
+            renderFileTabs();
+            renderFileList();
+            loadActiveFileToEditor();
+            runZsharpCode();
+            setupPressureGraph();
+        };
+
+        function switchSidebarTab(tab) {
+            activeSidebarTab = tab;
+            ['files', 'tutorial', 'snippets'].forEach(t => {
+                const btn = document.getElementById('tabBtn' + capitalize(t));
+                const content = document.getElementById('tabContent' + capitalize(t));
+                if (t === tab) {
+                    btn.classList.add('active');
+                    content.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('active');
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function switchBottomTab(tab) {
+            activeBottomTab = tab;
+            ['console', 'stylus', 'ast'].forEach(t => {
+                const btn = document.getElementById('btnTab' + capitalize(t));
+                const view = document.getElementById('view' + capitalize(t));
+                if (t === tab) {
+                    btn.classList.add('active');
+                    view.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('active');
+                    view.classList.add('hidden');
+                }
+            });
+
+            if (tab === 'stylus') {
+                drawPressureGraph();
+            }
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function renderFileTabs() {
+            const tabsContainer = document.getElementById("editorTabs");
+            tabsContainer.innerHTML = "";
+            Object.keys(files).forEach(filename => {
+                const isActive = filename === activeFile;
+                const tab = document.createElement("div");
+                tab.className = `editor-tab ${isActive ? 'active' : ''}`;
+                tab.onclick = () => switchActiveFile(filename);
+                tab.innerHTML = `
+                    <i class="fa-solid fa-file-code" style="color: var(--brand-accent); font-size: 10px;"></i>
+                    <span>${filename}</span>
+                    ${Object.keys(files).length > 1 ? `<i onclick="event.stopPropagation(); deleteFile('${filename}')" class="fa-solid fa-xmark" style="font-size: 10px; margin-left: 4px;"></i>` : ''}
+                `;
+                tabsContainer.appendChild(tab);
+            });
+        }
+
+        function renderFileList() {
+            const listContainer = document.getElementById("fileList");
+            listContainer.innerHTML = "";
+            Object.keys(files).forEach(filename => {
+                const isActive = filename === activeFile;
+                const item = document.createElement("div");
+                item.className = `file-item ${isActive ? 'active' : ''}`;
+                item.onclick = () => switchActiveFile(filename);
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-file-code" style="font-size: 11px;"></i>
+                        <span>${filename}</span>
+                    </div>
+                    <span style="font-size: 10px; color: var(--text-subtle);">.zsh</span>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function switchActiveFile(filename) {
+            files[activeFile] = document.getElementById("codeEditor").value;
+            activeFile = filename;
+            renderFileTabs();
+            renderFileList();
+            loadActiveFileToEditor();
+            runZsharpCode();
+        }
+
+        function loadActiveFileToEditor() {
+            const editor = document.getElementById("codeEditor");
+            editor.value = files[activeFile] || "";
+            handleCodeInput();
+        }
+
+        function openNewFileModal() {
+            document.getElementById("newFileNameInput").value = "";
+            document.getElementById("newFileModal").classList.remove("hidden");
+            document.getElementById("newFileNameInput").focus();
+        }
+
+        function confirmCreateNewFile() {
+            const inputVal = document.getElementById("newFileNameInput").value.trim();
+            if (!inputVal) {
+                showToast("Please enter a valid file name");
+                return;
+            }
+
+            let filename = inputVal;
+            if (!filename.endsWith(".zsh")) filename += ".zsh";
+
+            if (files[filename]) {
+                showToast("File with this name already exists!");
+                return;
+            }
+
+            const templateType = document.getElementById("newFileTemplateSelect").value;
+            let codeContent = "";
+
+            if (templateType === "blank") {
+                codeContent = `class ${filename.replace('.zsh', '')} {\n    fn init() {\n        print("Initialized ${filename}")\n    }\n}`;
+            } else if (templateType === "splitview") {
+                codeContent = `class ${filename.replace('.zsh', '')} {\n    fn render() {\n        return SplitView(\n            sidebar: ToolPanel(),\n            main: DrawingCanvas()\n        )\n    }\n}`;
+            } else if (templateType === "pipeline") {
+                codeContent = `class StreamProcessor {\n    fn process(stroke) {\n        return stroke\n            |> filterPalmInputs\n            |> scalePressure(multiplier: 1.5)\n    }\n}`;
+            } else if (templateType === "gesture") {
+                codeContent = `class GestureHandler {\n    fn onPinch(scale) {\n        print("Pinch gesture scale: " + scale)\n    }\n}`;
+            }
+
+            files[filename] = codeContent;
+            closeModal("newFileModal");
+            switchActiveFile(filename);
+            showToast(`Created ${filename}`);
+        }
+
+        function deleteFile(filename) {
+            if (Object.keys(files).length <= 1) return;
+            delete files[filename];
+            if (activeFile === filename) {
+                activeFile = Object.keys(files)[0];
+            }
+            renderFileTabs();
+            renderFileList();
+            loadActiveFileToEditor();
+            showToast(`Deleted ${filename}`);
+        }
+
+        function handleCodeInput() {
+            const editor = document.getElementById("codeEditor");
+            const code = editor.value;
+            files[activeFile] = code;
+
+            const highlighted = highlightZsharp(code);
+            document.getElementById("highlightCode").innerHTML = highlighted;
+
+            const lines = code.split("\n").length;
+            const lineNumbersContainer = document.getElementById("lineNumbers");
+            lineNumbersContainer.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join("<br>");
+
+            updateCursorPos();
+        }
+
+        function syncScroll() {
+            const editor = document.getElementById("codeEditor");
+            const highlightArea = document.getElementById("highlightingArea");
+            highlightArea.scrollTop = editor.scrollTop;
+            highlightArea.scrollLeft = editor.scrollLeft;
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const editor = document.getElementById("codeEditor");
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                editor.value = editor.value.substring(0, start) + "    " + editor.value.substring(end);
+                editor.selectionStart = editor.selectionEnd = start + 4;
+                handleCodeInput();
+            }
+        }
+
+        function updateCursorPos() {
+            const editor = document.getElementById("codeEditor");
+            const pos = editor.selectionStart;
+            const text = editor.value.substring(0, pos);
+            const line = text.split("\n").length;
+            const col = pos - text.lastIndexOf("\n");
+            document.getElementById("cursorPosText").innerText = `Ln ${line}, Col ${col}`;
+        }
+
+        function highlightZsharp(code) {
+            let text = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const tokenRegex = /(#.*$)|(".*?"|'.*?')|(\|>)|(\b(?:class|fn|return|let|const|if|else|for|while|import|from|export)\b)|(\b(?:SplitView|DrawingCanvas|ToolPanel|MetricCard|StylusStream|true|false)\b)|(\bself\b)|(\b\d+(?:\.\d+)?\b)|(\b[a-zA-Z_][a-zA-Z0-9_]*\b)(?=\s*\()/gm;
+
+            return text.replace(tokenRegex, (match, comment, stringToken, op, kw, builtin, selfKw, num, fnName) => {
+                if (comment) return `<span class="token-comment">${comment}</span>`;
+                if (stringToken) return `<span class="token-str">${stringToken}</span>`;
+                if (op) return `<span class="token-op">${op}</span>`;
+                if (kw) return `<span class="token-kw">${kw}</span>`;
+                if (builtin) return `<span class="token-builtin">${builtin}</span>`;
+                if (selfKw) return `<span class="token-self">${selfKw}</span>`;
+                if (num) return `<span class="token-num">${num}</span>`;
+                if (fnName) return `<span class="token-fn">${fnName}</span>`;
+                return match;
+            });
+        }
+
+        function runZsharpCode() {
+            const code = files[activeFile] || "";
+            const appUI = document.getElementById("zsharpAppUI");
+
+            logConsole(`[Hot Reload] Executing ${activeFile}...`);
+
+            let brushSize = 5;
+            let activeColor = "#e11d48";
+
+            const sizeMatch = code.match(/initialBrushSize\s*=\s*(\d+(\.\d+)?)/);
+            if (sizeMatch) brushSize = parseFloat(sizeMatch[1]);
+
+            const colorMatch = code.match(/self\.activeColor\s*=\s*"([^"]+)"/);
+            if (colorMatch) activeColor = colorMatch[1];
+
+            if (code.includes("SplitView")) {
+                appUI.innerHTML = `
+                    <div style="width: 33.33%; background: #0f172a; border-right: 1px solid #1e293b; padding: 0.75rem; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; user-select: none;">
+                        <div>
+                            <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem;">Tool Panel</div>
+                            <div class="flex flex-col gap-3">
+                                <div>
+                                    <label style="font-size: 11px; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.25rem;">Brush Color</label>
+                                    <div class="flex gap-2">
+                                        <button onclick="setSimColor('#e11d48')" style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #e11d48; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;"></button>
+                                        <button onclick="setSimColor('#38bdf8')" style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #38bdf8; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;"></button>
+                                        <button onclick="setSimColor('#4ade80')" style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #4ade80; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;"></button>
+                                        <button onclick="setSimColor('#facc15')" style="width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #facc15; border: 1px solid rgba(255,255,255,0.4); cursor: pointer;"></button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style="font-size: 11px; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.25rem;">Brush Size: <span id="simSizeVal">${brushSize}px</span></label>
+                                    <input type="range" min="1" max="25" value="${brushSize}" oninput="setSimSize(this.value)" style="width: 100%; height: 4px; background: #1e293b; border-radius: 2px; accent-color: var(--brand-primary);">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding: 0.5rem; border-radius: 0.375rem; background: #020617; border: 1px solid #1e293b; font-size: 10px; color: #94a3b8;" class="font-mono">
+                            <i class="fa-solid fa-pen-nib" style="color: var(--brand-accent);"></i> Stylus Stream Active
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; background: #020617; position: relative; overflow: hidden;" class="flex flex-col">
+                        <div style="padding: 0.5rem; background: #0f172a; border-bottom: 1px solid #1e293b; font-size: 11px; color: #cbd5e1; user-select: none;" class="flex justify-between items-center">
+                            <span style="font-weight: 700;" class="flex items-center gap-1"><i class="fa-solid fa-paintbrush" style="color: var(--brand-accent);"></i> Canvas</span>
+                            <span style="font-size: 10px; color: #34d399;" class="font-mono"><i class="fa-solid fa-shield-halved"></i> Palm Filter</span>
+                        </div>
+                        <canvas id="appCanvas" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+                    </div>
+                `;
+
+                setTimeout(initInteractiveCanvas, 50);
+            } else {
+                appUI.innerHTML = `
+                    <div style="flex: 1; padding: 1.5rem; background: #020617; color: #e2e8f0; font-size: 0.75rem;" class="font-mono overflow-auto">
+                        <div style="color: var(--brand-accent); font-weight: 700; margin-bottom: 0.5rem;">&gt; Z# Script Output (${activeFile}):</div>
+                        <div style="padding: 0.75rem; background: #0f172a; border-radius: 0.5rem; border: 1px solid #1e293b; color: #cbd5e1;">
+                            Class loaded successfully into memory. Ready for touch events.
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById("astOutput").innerText = `Program {\n  source: "${activeFile}",\n  AST: {\n    Class: "${activeFile.replace('.zsh','')}",\n    PipelineOperators: ${code.includes('|>') ? "true" : "false"},\n    TabletPrimitives: ["SplitView", "DrawingCanvas"]\n  }\n}`;
+
+            showToast("Hot Reload Complete");
+        }
+
+        let canvas, ctx;
+        let isDrawing = false;
+
+        function initInteractiveCanvas() {
+            canvas = document.getElementById("appCanvas");
+            if (!canvas) return;
+            ctx = canvas.getContext("2d");
+
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            canvas.addEventListener("mousedown", startStroke);
+            canvas.addEventListener("mousemove", drawStroke);
+            canvas.addEventListener("mouseup", stopStroke);
+            canvas.addEventListener("mouseleave", stopStroke);
+
+            canvas.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+
+            canvas.addEventListener("touchmove", (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+
+            canvas.addEventListener("touchend", stopStroke);
+        }
+
+        function startStroke(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            processStylusPoint(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function drawStroke(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.strokeStyle = canvasDrawingColor;
+            ctx.lineWidth = canvasBrushSize * (currentPressure / 50);
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+
+            processStylusPoint(x, y);
+        }
+
+        function stopStroke() {
+            if (!isDrawing) return;
+            isDrawing = false;
+            ctx.closePath();
+        }
+
+        function setSimColor(color) {
+            canvasDrawingColor = color;
+            logConsole(`Stylus color updated to ${color}`);
+        }
+
+        function setSimSize(val) {
+            canvasBrushSize = parseFloat(val);
+            document.getElementById("simSizeVal").innerText = `${val}px`;
+        }
+
+        function resetCanvasDrawing() {
+            if (ctx && canvas) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                showToast("Tablet screen cleared");
+            }
+        }
+
+        function processStylusPoint(x, y) {
+            strokePointsCount++;
+            document.getElementById("pressurePointCounter").innerText = `Points Processed: ${strokePointsCount}`;
+
+            pressureHistory.push(currentPressure + (Math.random() * 10 - 5));
+            if (pressureHistory.length > 50) pressureHistory.shift();
+
+            if (activeBottomTab === 'stylus') {
+                drawPressureGraph();
+            }
+        }
+
+        function setupPressureGraph() {
+            for (let i = 0; i < 50; i++) pressureHistory.push(75);
+        }
+
+        function drawPressureGraph() {
+            const pCanvas = document.getElementById("pressureCanvas");
+            if (!pCanvas) return;
+            const pCtx = pCanvas.getContext("2d");
+            pCanvas.width = pCanvas.parentElement.clientWidth;
+            pCanvas.height = pCanvas.parentElement.clientHeight;
+
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            pCtx.strokeStyle = "#e11d48";
+            pCtx.lineWidth = 2;
+            pCtx.beginPath();
+
+            const sliceWidth = pCanvas.width / (pressureHistory.length - 1);
+            let x = 0;
+
+            for (let i = 0; i < pressureHistory.length; i++) {
+                const v = pressureHistory[i] / 100;
+                const y = pCanvas.height - (v * pCanvas.height);
+
+                if (i === 0) pCtx.moveTo(x, y);
+                else pCtx.lineTo(x, y);
+
+                x += sliceWidth;
+            }
+
+            pCtx.stroke();
+        }
+
+        function updateStylusPressure(val) {
+            currentPressure = parseInt(val);
+            document.getElementById("pressureValueText").innerText = `${val}%`;
+        }
+
+        function togglePalmRejection() {
+            palmRejectionEnabled = !palmRejectionEnabled;
+            const btn = document.getElementById("palmBtn");
+            if (palmRejectionEnabled) {
+                btn.innerHTML = `<i class="fa-solid fa-hand"></i> Palm Filter: ON`;
+                logConsole("Palm rejection filter activated");
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-hand-slash"></i> Palm Filter: OFF`;
+                logConsole("Palm rejection filter deactivated");
+            }
+        }
+
+        function changeSimulatedDevice(device) {
+            const frame = document.getElementById("tabletDeviceFrame");
+            const resBadge = document.getElementById("resolutionBadge");
+
+            if (device === "ipad-pro-12") {
+                frame.style.width = isLandscape ? "560px" : "420px";
+                frame.style.height = isLandscape ? "420px" : "560px";
+                resBadge.innerText = "1024 x 1366";
+            } else if (device === "ipad-mini") {
+                frame.style.width = isLandscape ? "480px" : "360px";
+                frame.style.height = isLandscape ? "360px" : "480px";
+                resBadge.innerText = "744 x 1133";
+            } else if (device === "galaxy-tab") {
+                frame.style.width = isLandscape ? "540px" : "380px";
+                frame.style.height = isLandscape ? "380px" : "540px";
+                resBadge.innerText = "800 x 1280";
+            } else if (device === "surface-pro") {
+                frame.style.width = isLandscape ? "580px" : "440px";
+                frame.style.height = isLandscape ? "440px" : "580px";
+                resBadge.innerText = "960 x 1440";
+            }
+
+            setTimeout(initInteractiveCanvas, 100);
+            showToast(`Switched target: ${device}`);
+        }
+
+        function toggleOrientation() {
+            isLandscape = !isLandscape;
+            const device = document.getElementById("deviceSelector").value;
+            changeSimulatedDevice(device);
+        }
+
+        function loadTutorialLesson(num) {
+            let filename = `lesson_${num}.zsh`;
+            let code = "";
+
+            if (num === 1) {
+                code = `class LessonOne {\n    fn init(name = "Z# Learner") {\n        self.userName = name\n        self.brushSize = 6.0\n    }\n\n    fn computeArea(radius) {\n        return 3.14159 * radius * radius\n    }\n}`;
+            } else if (num === 2) {
+                code = `class LessonTwoClass {\n    fn init() {\n        self.activeTool = "Pencil"\n    }\n\n    fn setTool(toolName) {\n        self.activeTool = toolName\n        print("Switched tool to: " + toolName)\n    }\n}`;
+            } else if (num === 3) {
+                code = `class LessonThreePipeline {\n    fn processStroke(stroke) {\n        return stroke\n            |> filterPalmInputs\n            |> scalePressure(multiplier: 1.8)\n            |> smoothBezierCurves\n    }\n}`;
+            } else if (num === 4) {
+                code = `class LessonFourSplitView {\n    fn render() {\n        return SplitView(\n            sidebar: ToolPanel(brushSize: 8.0, color: "#38bdf8"),\n            main: DrawingCanvas(palmRejection: true)\n        )\n    }\n}`;
+            }
+
+            files[filename] = code;
+            switchActiveFile(filename);
+            showToast(`Loaded Lesson ${num} code!`);
+        }
+
+        function insertSnippet(type) {
+            const editor = document.getElementById("codeEditor");
+            let snippet = "";
+            if (type === "pipeline") {
+                snippet = `\nstroke \n    |> filterPalmInputs \n    |> scalePressure(multiplier: 1.5)\n    |> smoothBezierCurves`;
+            } else if (type === "splitview") {
+                snippet = `\nSplitView(\n    sidebar: ToolPanel(),\n    main: DrawingCanvas()\n)`;
+            } else if (type === "class") {
+                snippet = `\nclass CustomTabletView {\n    fn init() {\n        self.active = true\n    }\n}`;
+            }
+
+            const start = editor.selectionStart;
+            editor.value = editor.value.substring(0, start) + snippet + editor.value.substring(start);
+            handleCodeInput();
+            showToast("Snippet inserted");
+        }
+
+        function logConsole(msg) {
+            const consoleBox = document.getElementById("viewConsole");
+            const entry = document.createElement("div");
+            entry.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            consoleBox.appendChild(entry);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        function clearConsoleLog() {
+            document.getElementById("viewConsole").innerHTML = "";
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastMsg").innerText = msg;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function openZcodexZInfo() {
+            document.getElementById("zcodexzModal").classList.remove("hidden");
+        }
+
+        function openTutorialModal() {
+            document.getElementById("tutorialModal").classList.remove("hidden");
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add("hidden");
+        }
+
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            panel.classList.toggle("hidden");
+        }
+
+        function toggleFullscreenSimulator() {
+            const preview = document.getElementById("previewPanel");
+            preview.classList.toggle("fullscreen");
+            setTimeout(initInteractiveCanvas, 100);
+        }
+    </script>
+
+
+<script async="" src="./Zstudio_files/hud" data-nf-variant="public" data-netlify-site-id="61009a1f-ec20-4e4a-9bc8-569f57018c63" data-app-host="app.netlify.com" data-account-tier="free"></script>
+<iframe id="nl-badge-frame" title="Powered by Netlify" style="position: fixed; bottom: 0px; right: 0px; border: 0px; margin: 0px; padding: 0px; background: transparent; color-scheme: dark; z-index: 2147483645; width: 197px; height: 64px; clip-path: path(&quot;M 3 3 H 184 V 51 H 3 Z&quot;);" data-nl-ready="1" src="./Zstudio_files/saved_resource.html"></iframe></body></html>
